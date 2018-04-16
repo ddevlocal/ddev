@@ -1,6 +1,7 @@
 package output
 
 import (
+	"github.com/mattn/go-colorable"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -18,13 +19,14 @@ var (
 // LogSetUp sets up UserOut and log loggers as needed by ddev
 func LogSetUp() {
 	// Use stdout instead of stderr for all user output
-	log.SetOutput(os.Stdout)
 	UserOut.Out = os.Stdout
+	log.SetOutput(colorable.NewColorableStdout())
 
 	if !JSONOutput {
-		UserOut.Formatter = UserOutFormatter
+		UserOut.Formatter = new(log.TextFormatter)
 	} else {
 		UserOut.Formatter = &JSONFormatter{}
+		log.SetOutput(os.Stdout)
 	}
 
 	UserOutFormatter.DisableTimestamp = true
