@@ -180,6 +180,12 @@ func IsDockerToolbox() bool {
 	return false
 }
 
+// IsMSYS detects whether the current environment is MSYS (git-bash, docker quick terminal, etc)
+func IsMSYS() bool {
+	msys := os.Getenv("MSYS")
+	return msys != ""
+}
+
 // IsCommandAvailable uses shell's "command" to find out if a command is available
 // https://siongui.github.io/2018/03/16/go-check-if-command-exists/
 // This lives here instead of in fileutil to avoid unecessary import cycles.

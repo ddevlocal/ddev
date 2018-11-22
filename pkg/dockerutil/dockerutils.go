@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/drud/ddev/pkg/util"
 	"io"
 	"log"
 	"os"
@@ -560,13 +561,15 @@ func ImageExistsLocally(imageName string) (bool, error) {
 }
 
 // MassageWindowsHostMountpoint changes C:/path/to/something to //c/path/to/something
-// THis is required for docker bind mounts on docker toolbox.
+// This is required for docker bind mounts on docker toolbox on MSYSGIT
 // Sadly, if we have a Windows drive name, it has to be converted from C:/ to //c for Win10Home/Docker toolbox
 func MassageWindowsHostMountpoint(mountPoint string) string {
-	if string(mountPoint[1]) == ":" {
-		pathPortion := strings.Replace(mountPoint[2:], `\`, "/", -1)
-		drive := strings.ToLower(string(mountPoint[0]))
-		mountPoint = "//" + drive + pathPortion
+	if util.IsDockerToolbox() && util.IsMSYS() {
+		if string(mountPoint[1]) == ":" {
+			pathPortion := strings.Replace(mountPoint[2:], `\`, "/", -1)
+			drive := strings.ToLower(string(mountPoint[0]))
+			mountPoint = "//" + drive + pathPortion
+		}
 	}
 	return mountPoint
 }
