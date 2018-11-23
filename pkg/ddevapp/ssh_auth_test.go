@@ -3,7 +3,6 @@ package ddevapp_test
 import (
 	"fmt"
 	"github.com/drud/ddev/pkg/ddevapp"
-	"github.com/drud/ddev/pkg/dockerutil"
 	"github.com/drud/ddev/pkg/exec"
 	"github.com/drud/ddev/pkg/fileutil"
 	"github.com/drud/ddev/pkg/testcommon"
@@ -93,7 +92,7 @@ func TestSSHAuth(t *testing.T) {
 	// ddev auth ssh command, and with an expect script to provide the passphrase.
 	_, _, uidStr, _ := util.GetContainerUIDGid()
 	sshKeyPath := filepath.Join(destDdev, ".ssh")
-	sshKeyPath = dockerutil.MassageWindowsHostMountpoint(sshKeyPath)
+	sshKeyPath = util.MassageWindowsHostMountpoint(sshKeyPath)
 
 	err = exec.RunInteractiveCommand("docker", []string{"run", "-t", "--rm", "--volumes-from=" + ddevapp.SSHAuthName, "-v", sshKeyPath + ":/tmp/.ssh", "-u", uidStr, version.SSHAuthImage + ":" + version.SSHAuthTag, "//test.expect.passphrase"})
 	require.NoError(t, err)

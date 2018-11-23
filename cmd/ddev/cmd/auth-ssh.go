@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/drud/ddev/pkg/ddevapp"
-	"github.com/drud/ddev/pkg/dockerutil"
 	"github.com/drud/ddev/pkg/exec"
 	"github.com/drud/ddev/pkg/util"
 	"github.com/drud/ddev/pkg/version"
@@ -59,7 +58,7 @@ var AuthSSHCommand = &cobra.Command{
 		if err != nil {
 			util.Failed("Failed to start ddev-ssh-agent container: %v", err)
 		}
-		sshKeyPath = dockerutil.MassageWindowsHostMountpoint(sshKeyPath)
+		sshKeyPath = util.MassageWindowsHostMountpoint(sshKeyPath)
 		dockerCmd := fmt.Sprintf("docker run -it --rm --volumes-from=%s --mount 'type=bind,src=%s,dst=/tmp/.ssh' -u %s %s:%s ssh-add", ddevapp.SSHAuthName, sshKeyPath, uidStr, version.SSHAuthImage, version.SSHAuthTag)
 
 		err = exec.RunInteractiveCommand("sh", []string{"-c", dockerCmd})

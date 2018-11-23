@@ -196,3 +196,15 @@ func IsCommandAvailable(cmdName string) bool {
 	}
 	return false
 }
+
+// MassageWindowsHostMountpoint changes C:/path/to/something to //c/path/to/something
+// This is required for docker bind mounts on docker toolbox on MSYSGIT
+// Sadly, if we have a Windows drive name, it has to be converted from C:/ to //c for Win10Home/Docker toolbox
+func MassageWindowsHostMountpoint(mountPoint string) string {
+	if IsDockerToolbox() && IsMSYS() && string(mountPoint[1]) == ":" {
+		pathPortion := strings.Replace(mountPoint[2:], `\`, "/", -1)
+		drive := strings.ToLower(string(mountPoint[0]))
+		mountPoint = "//" + drive + pathPortion
+	}
+	return mountPoint
+}
