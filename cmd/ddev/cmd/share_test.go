@@ -3,12 +3,14 @@ package cmd
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/shirou/gopsutil/process"
 	asrt "github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
 	"runtime"
+	"syscall"
 	"testing"
 )
 
@@ -28,6 +30,8 @@ func TestShareCmd(t *testing.T) {
 	require.NoError(t, err)
 
 	cmd = exec.Command(DdevBin, "share", "--use-http")
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
 	cmdReader, err := cmd.StdoutPipe()
 	require.NoError(t, err)
 	scanner := bufio.NewScanner(cmdReader)
@@ -57,9 +61,21 @@ func TestShareCmd(t *testing.T) {
 				body, err := ioutil.ReadAll(resp.Body)
 				assert.NoError(err)
 				assert.Contains(string(body), site.Safe200URIWithExpectation.Expect)
-				err = cmd.Process.Kill()
-				assert.NoError(err)
 				urlRead = true
+
+				// The complexity here using github.com/shirou/gopsutil/process
+				// is a result of the need to kill subprocesses in Windows.
+				// Suggested by https://forum.golangbridge.org/t/how-can-i-use-syscall-kill-in-windows/11472/5
+				p, err := process.NewProcess(int32(cmd.Process.Pid))
+				assert.NoError(err)
+				children, err := p.Children()
+				assert.NoError(err)
+				for _, v := range children {
+					err = v.Kill() // Kill each child
+					assert.NoError(err)
+				}
+				err = p.Kill()
+				assert.NoError(err)
 				return
 			}
 		}
@@ -72,5 +88,4 @@ func TestShareCmd(t *testing.T) {
 	assert.True(urlRead)
 	_ = cmdReader.Close()
 	t.Logf("goprocs: %v", runtime.NumGoroutine())
-
 }

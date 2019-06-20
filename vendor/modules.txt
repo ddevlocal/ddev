@@ -9,6 +9,8 @@ github.com/Masterminds/sprig
 github.com/Microsoft/go-winio
 # github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5
 github.com/Nvveen/Gotty
+# github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d
+github.com/StackExchange/wmi
 # github.com/aokoli/goutils v1.0.1
 github.com/aokoli/goutils
 # github.com/aws/aws-sdk-go v1.14.31
@@ -99,6 +101,9 @@ github.com/fsouza/go-dockerclient/internal/term
 github.com/getsentry/raven-go
 # github.com/go-ini/ini v1.38.1
 github.com/go-ini/ini
+# github.com/go-ole/go-ole v1.2.4
+github.com/go-ole/go-ole
+github.com/go-ole/go-ole/oleutil
 # github.com/gogo/protobuf v1.1.1
 github.com/gogo/protobuf/proto
 # github.com/google/go-github v0.0.0-20180716180158-c0b63e2f9bb1
@@ -161,6 +166,15 @@ github.com/pelletier/go-toml
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
+# github.com/shirou/gopsutil v2.18.12+incompatible
+github.com/shirou/gopsutil/process
+github.com/shirou/gopsutil/cpu
+github.com/shirou/gopsutil/host
+github.com/shirou/gopsutil/internal/common
+github.com/shirou/gopsutil/mem
+github.com/shirou/gopsutil/net
+# github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4
+github.com/shirou/w32
 # github.com/sirupsen/logrus v1.0.6
 github.com/sirupsen/logrus
 # github.com/spf13/afero v1.1.1
