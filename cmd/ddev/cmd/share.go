@@ -5,10 +5,6 @@ import (
 	"github.com/drud/ddev/pkg/util"
 	"github.com/spf13/cobra"
 	"os"
-	"os/exec"
-	"runtime"
-	"strings"
-	"time"
 )
 
 // DdevShareCommand contains the "ddev share" command
@@ -28,66 +24,26 @@ ddev share --use-http`,
 		if app.SiteStatus() != ddevapp.SiteRunning {
 			util.Failed("Project is not yet running. Use 'ddev start' first.")
 		}
-
-		ngrokLoc, err := exec.LookPath("ngrok")
-		if ngrokLoc == "" || err != nil {
-			util.Failed("ngrok not found in path, please install it, see https://ngrok.com/download")
-		}
-		urls := []string{app.GetWebContainerDirectHTTPSURL(), app.GetWebContainerDirectHTTPURL()}
-
 		// If they provided the --use-http flag, we'll not try both https and http
 		useHTTP, err := cmd.Flags().GetBool("use-http")
 		if err != nil {
 			util.Failed("failed to get use-http flag: %v", err)
 		}
-
-		if useHTTP {
-			urls = []string{app.GetWebContainerDirectHTTPURL()}
+		var flags []string
+		// Pass along --subdomain argument
+		if cmd.Flags().Changed("subdomain") {
+			s, err := cmd.Flags().GetString("subdomain")
+			if err != nil {
+				util.Failed("Unable to get subdomain argument: %v", err)
+			}
+			flags = append(flags, "-subdomain", s)
 		}
 
-		var ngrokErr error
-		for _, url := range urls {
-			ngrokArgs := []string{"http"}
-			if app.NgrokArgs != "" {
-				ngrokArgs = append(ngrokArgs, strings.Split(app.NgrokArgs, " ")...)
-			}
-			ngrokArgs = append(ngrokArgs, url)
-			ngrokArgs = append(ngrokArgs, args...)
-
-			if strings.Contains(url, "http://") {
-				util.Warning("Using local http URL, your data may be exposed on the internet. Create a free ngrok account instead...")
-				time.Sleep(time.Second * 3)
-			}
-			util.Success("Running %s %s", ngrokLoc, strings.Join(ngrokArgs, " "))
-			ngrokCmd := exec.Command(ngrokLoc, ngrokArgs...)
-			ngrokCmd.Stdout = os.Stdout
-			ngrokCmd.Stderr = os.Stderr
-			ngrokErr = ngrokCmd.Run()
-
-			// nil result means ngrok ran and exited normally.
-			// It seems to do this fine when hit by SIGTERM or SIGINT
-			if ngrokErr == nil {
-				break
-			}
-
-			exitErr, ok := ngrokErr.(*exec.ExitError)
-			if !ok {
-				// Normally we'd have an ExitError, but if not, notify
-				util.Error("ngrok exited: %v", ngrokErr)
-				break
-			}
-
-			exitCode := exitErr.ExitCode()
-			// In the case of exitCode==1, ngrok seems to have died due to an error,
-			// most likely inadequate user permissions.
-			if exitCode != 1 {
-				util.Warning("ngrok exited: %v", exitErr)
-				break
-			}
-			// Otherwise we'll continue and do the next url or exit
-			util.Warning("ngrok exited: %v", exitErr)
+		err = app.Share(useHTTP, flags)
+		if err != nil {
+			util.Failed("Unable to share: %v", err)
 		}
-		util.Warning("ngrokErr: %v, goprocs: %v", ngrokErr, runtime.NumGoroutine())
+
 		os.Exit(0)
 	},
 }
