@@ -1,13 +1,11 @@
 package ddevapp
 
 import (
-	"fmt"
 	"github.com/drud/ddev/pkg/util"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
+	"sync"
 	"time"
 )
 
@@ -23,59 +21,62 @@ func (app *DdevApp) Share(useHTTP bool, extraNgrokFlags []string) error {
 		urls = []string{app.GetWebContainerDirectHTTPURL()}
 	}
 
-	var ngrokErr error
-	for _, url := range urls {
-		ngrokArgs := []string{"http"}
-		if app.NgrokArgs != "" {
-			ngrokArgs = append(ngrokArgs, strings.Split(app.NgrokArgs, " ")...)
+	//sigs := make(chan os.Signal, 1)
+	//signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	//process, _ := os.FindProcess(os.Getpid())
+
+	var waitgroup sync.WaitGroup
+	waitgroup.Add(1)
+
+	//var ngrokCmd *Cmd
+	go func(waitgroup *sync.WaitGroup) {
+		for _, url := range urls {
+			ngrokArgs := []string{"http"}
+			if app.NgrokArgs != "" {
+				ngrokArgs = append(ngrokArgs, strings.Split(app.NgrokArgs, " ")...)
+			}
+			ngrokArgs = append(ngrokArgs, url)
+			ngrokArgs = append(ngrokArgs, extraNgrokFlags...)
+
+			if strings.Contains(url, "http://") {
+				util.Warning("Using local http URL, your data may be exposed on the internet. Create a free ngrok account instead...")
+				time.Sleep(time.Second * 3)
+			}
+			util.Success("Running %s %s", ngrokLoc, strings.Join(ngrokArgs, " "))
+			ngrokCmd := exec.Command(ngrokLoc, ngrokArgs...)
+			ngrokCmd.Stdout = os.Stdout
+			ngrokCmd.Stderr = os.Stderr
+
+			ngrokErr := ngrokCmd.Run()
+
+			// nil result means ngrok ran and exited normally.
+			// It seems to do this fine when hit by SIGTERM or SIGINT
+			if ngrokErr == nil {
+				break
+			}
+
+			exitErr, ok := ngrokErr.(*exec.ExitError)
+			if !ok {
+				// Normally we'd have an ExitError, but if not, notify
+				util.Error("ngrok exited: %v", ngrokErr)
+				break
+			}
+
+			exitCode := exitErr.ExitCode()
+			// In the case of exitCode==1, ngrok seems to have died due to an error,
+			// most likely inadequate user permissions/configuration
+			if exitCode != 1 {
+				util.Error("ngrok exited: %v", exitErr)
+				break
+			}
+			// Otherwise we'll continue and try the next url or exit
 		}
-		ngrokArgs = append(ngrokArgs, url)
-		ngrokArgs = append(ngrokArgs, extraNgrokFlags...)
+		waitgroup.Done()
+	}(&waitgroup)
 
-		if strings.Contains(url, "http://") {
-			util.Warning("Using local http URL, your data may be exposed on the internet. Create a free ngrok account instead...")
-			time.Sleep(time.Second * 3)
-		}
-		util.Success("Running %s %s", ngrokLoc, strings.Join(ngrokArgs, " "))
-		ngrokCmd := exec.Command(ngrokLoc, ngrokArgs...)
-		ngrokCmd.Stdout = os.Stdout
-		ngrokCmd.Stderr = os.Stderr
+	//s := <-sigs
+	//util.Success("Received signal %v", s)
 
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGCHLD, syscall.SIGINT, syscall.SIGTERM)
-
-		err = ngrokCmd.Start()
-
-		sig := <-sigs
-		util.Success("received sig=%v", sig)
-
-		// If we received SIGCHLD, it means ngrok already exited.
-		// Otherwise, we need to kill the ngrok child
-		if sig != syscall.SIGCHLD {
-			_ = ngrokCmd.Process.Signal(syscall.SIGTERM)
-		}
-
-		ngrokErr = ngrokCmd.Wait()
-
-		// nil result means ngrok ran and exited normally.
-		// It seems to do this fine when hit by SIGTERM or SIGINT
-		if ngrokErr == nil {
-			break
-		}
-
-		exitErr, ok := ngrokErr.(*exec.ExitError)
-		if !ok {
-			// Normally we'd have an ExitError, but if not, notify
-			return fmt.Errorf("ngrok exited: %v", ngrokErr)
-		}
-
-		exitCode := exitErr.ExitCode()
-		// In the case of exitCode==1, ngrok seems to have died due to an error,
-		// most likely inadequate user permissions.
-		if exitCode != 1 {
-			return fmt.Errorf("ngrok exited: %v", exitErr)
-		}
-		// Otherwise we'll continue and do the next url or exit
-	}
+	waitgroup.Wait()
 	return nil
 }
