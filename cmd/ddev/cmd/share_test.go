@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os/exec"
 	"runtime"
-	"syscall"
 	"testing"
 )
 
@@ -30,7 +29,6 @@ func TestShareCmd(t *testing.T) {
 	require.NoError(t, err)
 
 	cmd = exec.Command(DdevBin, "share", "--use-http")
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	cmdReader, err := cmd.StdoutPipe()
 	require.NoError(t, err)
@@ -63,18 +61,28 @@ func TestShareCmd(t *testing.T) {
 				assert.Contains(string(body), site.Safe200URIWithExpectation.Expect)
 				urlRead = true
 
-				// The complexity here using github.com/shirou/gopsutil/process
+				// The complexity here using https://github.com/shirou/gopsutil/process
 				// is a result of the need to kill subprocesses in Windows.
 				// Suggested by https://forum.golangbridge.org/t/how-can-i-use-syscall-kill-in-windows/11472/5
-				p, err := process.NewProcess(int32(cmd.Process.Pid))
+				ddevProc, err := process.NewProcess(int32(cmd.Process.Pid))
 				assert.NoError(err)
-				children, err := p.Children()
+				children, err := ddevProc.Children()
 				assert.NoError(err)
+				// Kill off the child ngrok process first.
 				for _, v := range children {
-					err = v.Kill() // Kill each child
+					name, _ := v.Name()
+					status, _ := v.Status()
+					t.Logf("Killing %v with status %v", name, status)
+					err = v.Terminate()
+					assert.NoError(err)
+					err = v.Kill()
 					assert.NoError(err)
 				}
-				err = p.Kill()
+				name, _ := ddevProc.Name()
+				status, _ := ddevProc.Status()
+				t.Logf("Killing %v with status %v", name, status)
+
+				err = ddevProc.Terminate()
 				assert.NoError(err)
 				return
 			}
