@@ -5,7 +5,9 @@ import (
 	"github.com/drud/ddev/pkg/util"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -38,7 +40,22 @@ func (app *DdevApp) Share(useHTTP bool, extraNgrokFlags []string) error {
 		ngrokCmd := exec.Command(ngrokLoc, ngrokArgs...)
 		ngrokCmd.Stdout = os.Stdout
 		ngrokCmd.Stderr = os.Stderr
-		ngrokErr = ngrokCmd.Run()
+
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGCHLD, syscall.SIGINT, syscall.SIGTERM)
+
+		err = ngrokCmd.Start()
+
+		sig := <-sigs
+		util.Success("received sig=%v", sig)
+
+		// If we received SIGCHLD, it means ngrok already exited.
+		// Otherwise, we need to kill the ngrok child
+		if sig != syscall.SIGCHLD {
+			_ = ngrokCmd.Process.Signal(syscall.SIGTERM)
+		}
+
+		ngrokErr = ngrokCmd.Wait()
 
 		// nil result means ngrok ran and exited normally.
 		// It seems to do this fine when hit by SIGTERM or SIGINT
