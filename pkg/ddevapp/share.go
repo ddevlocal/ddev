@@ -28,7 +28,7 @@ func (app *DdevApp) Share(useHTTP bool, extraNgrokFlags []string) error {
 	var waitgroup sync.WaitGroup
 	waitgroup.Add(1)
 
-	//var ngrokCmd *Cmd
+	var ngrokCmd *exec.Cmd
 	go func(waitgroup *sync.WaitGroup) {
 		for _, url := range urls {
 			ngrokArgs := []string{"http"}
@@ -43,7 +43,7 @@ func (app *DdevApp) Share(useHTTP bool, extraNgrokFlags []string) error {
 				time.Sleep(time.Second * 3)
 			}
 			util.Success("Running %s %s", ngrokLoc, strings.Join(ngrokArgs, " "))
-			ngrokCmd := exec.Command(ngrokLoc, ngrokArgs...)
+			ngrokCmd = exec.Command(ngrokLoc, ngrokArgs...)
 			ngrokCmd.Stdout = os.Stdout
 			ngrokCmd.Stderr = os.Stderr
 
@@ -76,7 +76,11 @@ func (app *DdevApp) Share(useHTTP bool, extraNgrokFlags []string) error {
 
 	//s := <-sigs
 	//util.Success("Received signal %v", s)
+	go func() {
+		time.Sleep(time.Second * 10)
+		err = ngrokCmd.Process.Signal(os.Interrupt)
+	}()
 
 	waitgroup.Wait()
-	return nil
+	return err
 }
