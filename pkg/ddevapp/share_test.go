@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
@@ -33,16 +32,17 @@ func TestDdevShare(t *testing.T) {
 
 	tmpDir := testcommon.CreateTmpDir(t.Name())
 	logFile := filepath.Join(tmpDir, "ngrok.out")
+	_, err = os.Create(logFile)
+	assert.NoError(err)
 	app.NgrokArgs = "-log " + logFile + " -log-format=json"
-	var ngrokCmd *exec.Cmd
 
 	go func() {
-		err = app.Share(true, nil, ngrokCmd)
+		err = app.Share(true, nil, 0)
 	}()
 
-	time.Sleep(time.Second * 10)
-
-	f, err := os.Open(logFile)
+	// Wait for ngrok to populate the log
+	time.Sleep(3 * time.Second)
+	f, err := os.OpenFile(logFile, os.O_RDONLY, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,20 +76,6 @@ func TestDdevShare(t *testing.T) {
 			assert.NoError(err)
 			assert.Contains(string(body), site.Safe200URIWithExpectation.Expect)
 			urlRead = true
-
-			//// The complexity here using github.com/shirou/gopsutil/process
-			//// is a result of the need to kill subprocesses in Windows.
-			//// Suggested by https://forum.golangbridge.org/t/how-can-i-use-syscall-kill-in-windows/11472/5
-			//p, err := process.NewProcess(int32(cmd.Process.Pid))
-			//assert.NoError(err)
-			//children, err := p.Children()
-			//assert.NoError(err)
-			//for _, v := range children {
-			//	err = v.Kill() // Kill each child
-			//	assert.NoError(err)
-			//}
-			//err = p.Kill()
-			//assert.NoError(err)
 		}
 	}
 	assert.True(urlRead)

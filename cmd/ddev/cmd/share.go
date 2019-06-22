@@ -39,7 +39,7 @@ ddev share --use-http`,
 			flags = append(flags, "-subdomain", s)
 		}
 
-		err = app.Share(useHTTP, flags)
+		err = app.Share(useHTTP, flags, 0)
 		if err != nil {
 			util.Failed("Unable to share: %v", err)
 		}
