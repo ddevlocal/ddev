@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/gdamore/tcell"
-	"strings"
 	"time"
 
 	"github.com/drud/ddev/pkg/ddevapp"
@@ -42,7 +41,7 @@ ddev list -A`,
 			}
 
 			if cmd.Flag("gui").Changed {
-				tgui()
+				tgui(apps)
 			} else {
 				table := ddevapp.CreateAppTable()
 				for _, app := range apps {
@@ -74,38 +73,162 @@ func init() {
 	RootCmd.AddCommand(ListCmd)
 }
 
-func tgui() {
-	app := tview.NewApplication()
-	table := tview.NewTable().
-		SetBorders(true)
-	lorem := strings.Split("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.", " ")
-	cols, rows := 10, 40
-	word := 0
-	for r := 0; r < rows; r++ {
-		for c := 0; c < cols; c++ {
-			color := tcell.ColorWhite
-			if c < 1 || r < 1 {
-				color = tcell.ColorYellow
-			}
-			table.SetCell(r, c,
-				tview.NewTableCell(lorem[word]).
-					SetTextColor(color).
-					SetAlign(tview.AlignCenter))
-			word = (word + 1) % len(lorem)
-		}
-	}
-	table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
+func tgui(apps []*ddevapp.DdevApp) {
+	tguiApp := tview.NewApplication()
+	table := list(apps)
+	table.SetSelectable(true, false)
+
+	table.Select(1, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
-			app.Stop()
+			tguiApp.Stop()
 		}
 		if key == tcell.KeyEnter {
-			table.SetSelectable(true, true)
+			table.SetSelectable(true, false)
 		}
 	}).SetSelectedFunc(func(row int, column int) {
-		table.GetCell(row, column).SetTextColor(tcell.ColorRed)
-		table.SetSelectable(false, false)
+		//_ = table.GetCell(row, column).SetTextColor(tcell.ColorRed)
+
 	})
-	if err := app.SetRoot(table, true).Run(); err != nil {
+	if err := tguiApp.SetRoot(table, true).Run(); err != nil {
 		panic(err)
 	}
+
+}
+
+func tguiFlex(apps []*ddevapp.DdevApp) {
+	//	tguiApp := tview.NewApplication()
+	//
+	//	flex := tview.NewFlex().
+	//		AddItem(tview.NewBox().SetBorder(true).SetTitle("Left (1/2 x width of Top)"), 0, 1, false)
+	//	//	AddItem(tview.NewBox().SetBorder(true).SetTitle("Top"), 0, 1, false).
+	//	//	AddItem(tview.NewBox().SetBorder(true).SetTitle("Middle (3 x height of Top)"), 0, 3, false).
+	//	//	AddItem(tview.NewBox().SetBorder(true).SetTitle("Bottom (5 rows)"), 5, 1, false), 0, 2, false).
+	//	//AddItem(tview.NewBox().SetBorder(true).SetTitle("Right (20 cols)"), 20, 1, false)
+	//	i := flex.AddItem(tview.NewList(), 0, 0, true)
+	//	if err := tguiApp.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
+	//		panic(err)
+	//	}
+	//
+	//	tview.NewFlex().AddItem()
+	//	displayItems := []string{"name", "type", "approot", "primary_url", "status"}
+	//	for tc, title := range displayItems {
+	//		_ = table.SetCell(0, tc, tview.NewTableCell(title).SetAlign(tview.AlignLeft)).SetBorders(true)
+	//	}
+	//	for r, app := range apps {
+	//		desc, err := app.Describe()
+	//		desc["primary_url"] = app.GetPrimaryURL()
+	//
+	//		if err != nil {
+	//			util.Error("Failed to describe project %s: %v", app.GetName(), err)
+	//		}
+	//		for c, itemname := range displayItems {
+	//			_ = table.SetCell(r+1, c, tview.NewTableCell(desc[itemname].(string)).SetAlign(tview.AlignLeft))
+	//
+	//		}
+	//	}
+	//	table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
+	//		if key == tcell.KeyEscape {
+	//			tguiApp.Stop()
+	//		}
+	//		if key == tcell.KeyEnter {
+	//			table.SetSelectable(true, true)
+	//		}
+	//	}).SetSelectedFunc(func(row int, column int) {
+	//		table.GetCell(row, column).SetTextColor(tcell.ColorRed)
+	//		table.SetSelectable(false, false)
+	//		d := tview.NewDropDown().SetLabel(table.GetCell(row, column).Text).SetOptions([]string{"stop", "start", "describe", "launch"}, nil)
+	//		//modal := tview.NewModal().
+	//		//	SetText("Do you want to quit the application?").
+	//		//	AddButtons([]string{"Quit", "Cancel"}).
+	//		//	SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+	//		//		//if buttonLabel == "Quit" {
+	//		//		//	app.Stop()
+	//		//		//}
+	//		//	})
+	//
+	//		c := table.GetCell(row, column)
+	//		tview.NewTableCell("xxx")
+	//		tview.new
+	//		if err := tguiApp.SetRoot(d, false).SetFocus(d).Run(); err != nil {
+	//			panic(err)
+	//		}
+	//
+	//	})
+	//	if err := tguiApp.SetRoot(table, true).Run(); err != nil {
+	//		panic(err)
+	//	}
+
+	//for r := 0; r < len(apps); r++ {
+	//	for c := 0; c < cols; c++ {
+	//		color := tcell.ColorWhite
+	//		if c < 1 || r < 1 {
+	//			color = tcell.ColorYellow
+	//		}
+	//		table.SetCell(r, c,
+	//			tview.NewTableCell(lorem[word]).
+	//				SetTextColor(color).
+	//				SetAlign(tview.AlignCenter))
+	//		word = (word + 1) % len(lorem)
+	//	}
+	//}
+	//table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
+	//	if key == tcell.KeyEscape {
+	//		tguiApp.Stop()
+	//	}
+	//	if key == tcell.KeyEnter {
+	//		table.SetSelectable(true, true)
+	//	}
+	//}).SetSelectedFunc(func(row int, column int) {
+	//	table.GetCell(row, column).SetTextColor(tcell.ColorRed)
+	//	table.SetSelectable(false, false)
+	//})
+	//if err := tguiApp.SetRoot(table, true).Run(); err != nil {
+	//	panic(err)
+	//}
+}
+
+func tguiPages(apps []*ddevapp.DdevApp) {
+	tguiApp := tview.NewApplication()
+	pages := tview.NewPages()
+
+	pages.AddPage("list",
+		tview.NewModal().
+			SetText("This is page. Choose where to go next.").
+			AddButtons([]string{"Next", "Quit"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				if buttonIndex == 0 {
+					pages.SwitchToPage("list")
+				} else {
+					tguiApp.Stop()
+				}
+			}),
+		false,
+		true)
+	if err := tguiApp.SetRoot(pages, true).SetFocus(pages).Run(); err != nil {
+		panic(err)
+	}
+
+}
+
+func list(apps []*ddevapp.DdevApp) *tview.Table {
+	table := tview.NewTable().SetBorders(false)
+	table.SetSelectable(true, false)
+
+	displayItems := []string{"name", "type", "approot", "primary_url", "status"}
+	for tc, title := range displayItems {
+		_ = table.SetCell(0, tc, tview.NewTableCell(title).SetAlign(tview.AlignLeft)).SetBorders(true)
+	}
+	for r, app := range apps {
+		desc, err := app.Describe()
+		desc["primary_url"] = app.GetPrimaryURL()
+
+		if err != nil {
+			util.Error("Failed to describe project %s: %v", app.GetName(), err)
+		}
+		for c, itemname := range displayItems {
+			_ = table.SetCell(r+1, c, tview.NewTableCell(desc[itemname].(string)).SetAlign(tview.AlignLeft))
+
+		}
+	}
+	return table
 }
