@@ -121,6 +121,7 @@ func descFlex(app *ddevapp.DdevApp) *tview.Flex {
 		util.Failed("Failed to describe project %s: %v", app.Name, err)
 	}
 	renderedDesc, _ := renderAppDescribe(desc)
+	flex.AddItem(tview.NewTextView().SetText("this is me, hello"), 1, 1, false)
 	flex.AddItem(tview.NewTextView().SetText(renderedDesc), 0, 1, false)
 
 	return flex
