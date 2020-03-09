@@ -1,3 +1,12 @@
+# fyne.io/fyne v1.2.3
+fyne.io/fyne
+fyne.io/fyne/canvas
+fyne.io/fyne/driver/desktop
+fyne.io/fyne/internal
+fyne.io/fyne/internal/cache
+fyne.io/fyne/layout
+fyne.io/fyne/theme
+fyne.io/fyne/widget
 # github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78
 github.com/Azure/go-ansiterm
 github.com/Azure/go-ansiterm/winterm
@@ -203,7 +212,7 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.4.0
 github.com/spf13/viper
-# github.com/stretchr/testify v1.3.0
+# github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c
