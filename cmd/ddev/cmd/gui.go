@@ -35,29 +35,36 @@ var GUICommand = &cobra.Command{
 				fyneApp := fapp.New()
 				window := fyneApp.NewWindow("DDEV-Local")
 
-				var rows []fyne.CanvasObject
-				//rows := []*fyne.Container{fyne.NewContainerWithLayout(layout.NewGridLayout(4),
-				rows = append(rows, widget.NewLabel("Project"),
-					widget.NewLabel("Type"),
-					widget.NewLabel("Location"),
-					widget.NewLabel("URL"),
-					widget.NewLabel("Status"),
-				)
+				nameCol := []fyne.CanvasObject{widget.NewLabel("Project")}
+				typeCol := []fyne.CanvasObject{widget.NewLabel("Type")}
+				locCol := []fyne.CanvasObject{widget.NewLabel("Location")}
+				urlCol := []fyne.CanvasObject{widget.NewLabel("URL")}
+				statusCol := []fyne.CanvasObject{widget.NewLabel("Status")}
+				//var nameCol, typeCol, locCol, urlCol, statusCol []fyne.CanvasObject
 
 				for _, app := range apps {
 					desc, err := app.Describe()
 					if err != nil {
 						util.Error("Failed to describe project %s: %v", app.GetName(), err)
 					}
-					rows = append(rows,
-						widget.NewLabel(desc["name"].(string)),
-						widget.NewLabel(desc["type"].(string)),
-						widget.NewLabel(desc["approot"].(string)),
-						widget.NewLabel(desc["httpsurl"].(string)),
-						widget.NewLabel(desc["status"].(string)),
-					)
+					nameCol = append(nameCol, widget.NewLabel(desc["name"].(string)))
+					typeCol = append(typeCol, widget.NewLabel(desc["type"].(string)))
+					locCol = append(locCol, widget.NewLabel(desc["approot"].(string)))
+					x := widget.NewHyperlink(desc["httpsurl"].(string), nil)
+					_ = x.SetURLFromString(desc["httpsurl"].(string))
+
+					urlCol = append(urlCol, x)
+					statusCol = append(statusCol, widget.NewLabel(desc["status"].(string)))
 				}
-				window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(5), rows...))
+
+				window.SetContent(
+					fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1),
+						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), nameCol...),
+						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), typeCol...),
+						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), locCol...),
+						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), urlCol...),
+						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), statusCol...)),
+				)
 
 				window.ShowAndRun()
 
