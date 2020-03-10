@@ -9,7 +9,7 @@
 DOCKERBUILDCMD=docker run -t --rm -u $(shell id -u):$(shell id -g)                    \
           	    -v "$(S)$(PWD):/workdir$(DOCKERMOUNTFLAG)"                              \
           	    -v "$(S)$(PWD)/$(GOTMP)/bin:$(S)/go/bin" \
-          	    -e CGO_ENABLED=0                  \
+          	    -e CGO_ENABLED=1                  \
           	    -e GOOS=$@						  \
           	    -e GOPATH="//workdir/$(GOTMP)" \
           	    -e GOCACHE="//workdir/$(GOTMP)/.cache" \
