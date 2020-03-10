@@ -2,8 +2,7 @@ package cmd
 
 import (
 	fapp "fyne.io/fyne/app"
-	"fyne.io/fyne/canvas"
-	"image/color"
+	"fyne.io/fyne/widget"
 	"time"
 
 	"github.com/drud/ddev/pkg/ddevapp"
@@ -38,27 +37,27 @@ var GUICommand = &cobra.Command{
 
 				var rows []fyne.CanvasObject
 				//rows := []*fyne.Container{fyne.NewContainerWithLayout(layout.NewGridLayout(4),
-				rows = append(rows, fyne.NewContainerWithLayout(layout.NewGridLayout(5), canvas.NewText("Project", color.White),
-					canvas.NewText("Type", color.White),
-					canvas.NewText("Location", color.White),
-					canvas.NewText("URL", color.White),
-					canvas.NewText("Status", color.White),
-				))
+				rows = append(rows, widget.NewLabel("Project"),
+					widget.NewLabel("Type"),
+					widget.NewLabel("Location"),
+					widget.NewLabel("URL"),
+					widget.NewLabel("Status"),
+				)
 
 				for _, app := range apps {
 					desc, err := app.Describe()
 					if err != nil {
 						util.Error("Failed to describe project %s: %v", app.GetName(), err)
 					}
-					rows = append(rows, fyne.NewContainerWithLayout(layout.NewGridLayout(5),
-						canvas.NewText(desc["name"].(string), color.White),
-						canvas.NewText(desc["type"].(string), color.White),
-						canvas.NewText(desc["approot"].(string), color.White),
-						canvas.NewText(desc["httpsurl"].(string), color.White),
-						canvas.NewText(desc["status"].(string), color.White),
-					))
+					rows = append(rows,
+						widget.NewLabel(desc["name"].(string)),
+						widget.NewLabel(desc["type"].(string)),
+						widget.NewLabel(desc["approot"].(string)),
+						widget.NewLabel(desc["httpsurl"].(string)),
+						widget.NewLabel(desc["status"].(string)),
+					)
 				}
-				window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(1), rows...))
+				window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(5), rows...))
 
 				window.ShowAndRun()
 
@@ -70,37 +69,38 @@ var GUICommand = &cobra.Command{
 	},
 }
 
-func loadUI(app fyne.App) {
-	//output := widget.NewLabel("")
-	//output.Alignment = fyne.TextAlignTrailing
-	//output.TextStyle.Monospace = true
-	//equals := addButton("=", func() {
-	//	evaluate()
-	//})
-	//equals.Style = widget.PrimaryButton
-	//
-	window := app.NewWindow("DDEV-Local")
-	//window.SetIcon(icon.CalculatorBitmap)
-	window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(1),
-		fyne.NewContainerWithLayout(layout.NewGridLayout(4),
-			canvas.NewText("Project", color.White),
-			canvas.NewText("Type", color.White),
-			canvas.NewText("Location", color.White),
-			canvas.NewText("URL", color.White),
-		),
-
-		fyne.NewContainerWithLayout(layout.NewGridLayout(4),
-			canvas.NewText("d8composer", color.White),
-			canvas.NewText("drupal8", color.White),
-			canvas.NewText("~/workspace/d8composer", color.White),
-			canvas.NewText("https://d8composer.ddev.site", color.White),
-		),
-	))
-
-	//window.Canvas().SetOnTypedRune(typedRune)
-	//window.Canvas().SetOnTypedKey(typedKey)
-	window.ShowAndRun()
-}
+//
+//func loadUI(app fyne.App) {
+//	//output := widget.NewLabel("")
+//	//output.Alignment = fyne.TextAlignTrailing
+//	//output.TextStyle.Monospace = true
+//	//equals := addButton("=", func() {
+//	//	evaluate()
+//	//})
+//	//equals.Style = widget.PrimaryButton
+//	//
+//	layout.NewAdaptiveGridLayout()
+//	window := app.NewWindow("DDEV-Local")
+//	window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(1),
+//		fyne.NewContainerWithLayout(layout.NewGridLayout(4),
+//			widget.NewLabel("Project"),
+//			widget.NewLabel("Type"),
+//			widget.NewLabel("Location"),
+//			widget.NewLabel("URL"),
+//		),
+//
+//		fyne.NewContainerWithLayout(layout.NewGridLayout(4),
+//			widget.NewLabel("d8composer"),
+//			widget.NewLabel("drupal8"),
+//			widget.NewLabel("~/workspace/d8composer"),
+//			widget.NewLabel("https://d8composer.ddev.site"),
+//		),
+//	))
+//
+//	//window.Canvas().SetOnTypedRune(typedRune)
+//	//window.Canvas().SetOnTypedKey(typedKey)
+//	window.ShowAndRun()
+//}
 func init() {
 	RootCmd.AddCommand(GUICommand)
 }
