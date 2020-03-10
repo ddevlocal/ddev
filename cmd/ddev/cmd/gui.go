@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	fapp "fyne.io/fyne/app"
 	"fyne.io/fyne/widget"
 	"time"
@@ -35,7 +36,11 @@ var GUICommand = &cobra.Command{
 				fyneApp := fapp.New()
 				window := fyneApp.NewWindow("DDEV-Local")
 
-				nameCol := []fyne.CanvasObject{widget.NewLabel("Project")}
+				s := fyne.NewSize(1, 0)
+				nameLabel := widget.NewLabel("Project")
+				nameLabel.Resize(s)
+
+				nameCol := []fyne.CanvasObject{nameLabel}
 				typeCol := []fyne.CanvasObject{widget.NewLabel("Type")}
 				locCol := []fyne.CanvasObject{widget.NewLabel("Location")}
 				urlCol := []fyne.CanvasObject{widget.NewLabel("URL")}
@@ -47,7 +52,13 @@ var GUICommand = &cobra.Command{
 					if err != nil {
 						util.Error("Failed to describe project %s: %v", app.GetName(), err)
 					}
-					nameCol = append(nameCol, widget.NewLabel(desc["name"].(string)))
+
+					nameLabel := widget.NewLabel(desc["name"].(string))
+					nameLabel.Resize(s)
+					ms := nameLabel.MinSize()
+					fmt.Printf("nameLabel ms=%v", ms)
+					nameCol = append(nameCol, nameLabel)
+					//nameCol = append(nameCol, widget.NewLabel(desc["name"].(string)))
 					typeCol = append(typeCol, widget.NewLabel(desc["type"].(string)))
 					locCol = append(locCol, widget.NewLabel(desc["approot"].(string)))
 					x := widget.NewHyperlink(desc["httpsurl"].(string), nil)
@@ -57,14 +68,23 @@ var GUICommand = &cobra.Command{
 					statusCol = append(statusCol, widget.NewLabel(desc["status"].(string)))
 				}
 
+				nameCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), nameCol...)
+				fmt.Printf("nameCont ms=%v nameCont size=%v", nameCont.MinSize(), nameCont.Size())
+
+				typeCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), typeCol...)
+				locCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), locCol...)
+				urlCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), urlCol...)
+				statusCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), statusCol...)
+
 				window.SetContent(
 					fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1),
-						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), nameCol...),
-						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), typeCol...),
-						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), locCol...),
-						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), urlCol...),
-						fyne.NewContainerWithLayout(layout.NewGridLayoutWithColumns(1), statusCol...)),
-				)
+						nameCont, typeCont, locCont, urlCont, statusCont,
+						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), nameCol...),
+						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), typeCol...),
+						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), locCol...),
+						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), urlCol...),
+						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), statusCol...)),
+					))
 
 				window.ShowAndRun()
 
