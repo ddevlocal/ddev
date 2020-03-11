@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	fapp "fyne.io/fyne/app"
 	"fyne.io/fyne/widget"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"fyne.io/fyne"
-	"fyne.io/fyne/layout"
 )
 
 var sleepTime = 2
@@ -36,55 +34,33 @@ var GUICommand = &cobra.Command{
 				fyneApp := fapp.New()
 				window := fyneApp.NewWindow("DDEV-Local")
 
-				s := fyne.NewSize(1, 0)
-				nameLabel := widget.NewLabel("Project")
-				nameLabel.Resize(s)
-
-				nameCol := []fyne.CanvasObject{nameLabel}
-				typeCol := []fyne.CanvasObject{widget.NewLabel("Type")}
-				locCol := []fyne.CanvasObject{widget.NewLabel("Location")}
-				urlCol := []fyne.CanvasObject{widget.NewLabel("URL")}
-				statusCol := []fyne.CanvasObject{widget.NewLabel("Status")}
-				//var nameCol, typeCol, locCol, urlCol, statusCol []fyne.CanvasObject
+				headings := []string{"Name", "Type", "Location", "URL", "Status"}
+				var rows [][]string
 
 				for _, app := range apps {
 					desc, err := app.Describe()
 					if err != nil {
 						util.Error("Failed to describe project %s: %v", app.GetName(), err)
 					}
+					status := desc["status"].(string)
+					//switch {
+					//case strings.Contains(status, ddevapp.SitePaused):
+					//	status = color.YellowString(status)
+					//case strings.Contains(status, ddevapp.SiteStopped):
+					//	status = color.RedString(status)
+					//case strings.Contains(status, ddevapp.SiteDirMissing):
+					//	status = color.RedString(status)
+					//case strings.Contains(status, ddevapp.SiteConfigMissing):
+					//	status = color.RedString(status)
+					//default:
+					//	status = color.CyanString(status)
+					//}
 
-					nameLabel := widget.NewLabel(desc["name"].(string))
-					nameLabel.Resize(s)
-					ms := nameLabel.MinSize()
-					fmt.Printf("nameLabel ms=%v", ms)
-					nameCol = append(nameCol, nameLabel)
-					//nameCol = append(nameCol, widget.NewLabel(desc["name"].(string)))
-					typeCol = append(typeCol, widget.NewLabel(desc["type"].(string)))
-					locCol = append(locCol, widget.NewLabel(desc["approot"].(string)))
-					x := widget.NewHyperlink(desc["httpsurl"].(string), nil)
-					_ = x.SetURLFromString(desc["httpsurl"].(string))
-
-					urlCol = append(urlCol, x)
-					statusCol = append(statusCol, widget.NewLabel(desc["status"].(string)))
+					rows = append(rows, []string{desc["name"].(string), desc["type"].(string), desc["approot"].(string), desc["httpsurl"].(string), status})
 				}
+				t := makeTable(headings, rows)
 
-				nameCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), nameCol...)
-				fmt.Printf("nameCont ms=%v nameCont size=%v", nameCont.MinSize(), nameCont.Size())
-
-				typeCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), typeCol...)
-				locCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), locCol...)
-				urlCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), urlCol...)
-				statusCont := fyne.NewContainerWithLayout(layout.NewGridLayout(1), statusCol...)
-
-				window.SetContent(
-					fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1),
-						nameCont, typeCont, locCont, urlCont, statusCont,
-						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), nameCol...),
-						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), typeCol...),
-						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), locCol...),
-						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), urlCol...),
-						//fyne.NewContainerWithLayout(layout.NewGridLayout(1), statusCol...)),
-					))
+				window.SetContent(t)
 
 				window.ShowAndRun()
 
@@ -94,6 +70,32 @@ var GUICommand = &cobra.Command{
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 		}
 	},
+}
+
+// From https://github.com/fyne-io/fyne/issues/157#issuecomment-597319590
+func makeTable(headings []string, rows [][]string) *widget.Box {
+
+	columns := rowsToColumns(headings, rows)
+
+	objects := make([]fyne.CanvasObject, len(columns))
+	for k, col := range columns {
+		box := widget.NewVBox(widget.NewLabelWithStyle(headings[k], fyne.TextAlignLeading, fyne.TextStyle{Bold: true}))
+		for _, val := range col {
+			box.Append(widget.NewLabel(val))
+		}
+		objects[k] = box
+	}
+	return widget.NewHBox(objects...)
+}
+
+func rowsToColumns(headings []string, rows [][]string) [][]string {
+	columns := make([][]string, len(headings))
+	for _, row := range rows {
+		for colK := range row {
+			columns[colK] = append(columns[colK], row[colK])
+		}
+	}
+	return columns
 }
 
 //

@@ -29,7 +29,7 @@ require (
 	github.com/lextoumbourou/goodhosts v2.1.0+incompatible
 	github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a
 	github.com/magiconair/properties v1.8.1 // indirect
-	github.com/mattn/go-colorable v0.0.9 // indirect
+	github.com/mattn/go-colorable v0.0.9
 	github.com/mattn/go-isatty v0.0.3
 	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
