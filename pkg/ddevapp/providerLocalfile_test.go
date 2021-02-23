@@ -37,7 +37,7 @@ func TestLocalfilePull(t *testing.T) {
 	err = app.WriteConfig()
 	require.NoError(t, err)
 
-	testcommon.ClearDockerEnv()
+	nodeps.ClearDockerEnv()
 
 	t.Cleanup(func() {
 		err = app.Stop(true, false)

@@ -697,7 +697,7 @@ func TestConfigOverrideDetection(t *testing.T) {
 		assert.NoError(err)
 	}
 
-	testcommon.ClearDockerEnv()
+	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -759,7 +759,7 @@ func TestPHPOverrides(t *testing.T) {
 	err = fileutil.CopyFile(filepath.Join(tDir, "testdata/TestPHPOverrides/phpinfo.php"), filepath.Join(site.Dir, site.Docroot, "phpinfo.php"))
 	assert.NoError(err)
 
-	testcommon.ClearDockerEnv()
+	nodeps.ClearDockerEnv()
 	err = app.Init(site.Dir)
 	assert.NoError(err)
 	_ = app.Stop(true, false)

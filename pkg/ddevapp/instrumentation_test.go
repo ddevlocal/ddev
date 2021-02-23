@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/drud/ddev/pkg/ddevapp"
 	"github.com/drud/ddev/pkg/nodeps"
-	"github.com/drud/ddev/pkg/testcommon"
 	"github.com/drud/ddev/pkg/util"
 	asrt "github.com/stretchr/testify/assert"
 	"strings"
@@ -21,7 +20,7 @@ func TestSetInstrumentationAppTags(t *testing.T) {
 	site := TestSites[0]
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 
-	testcommon.ClearDockerEnv()
+	nodeps.ClearDockerEnv()
 	app := new(ddevapp.DdevApp)
 
 	err := app.Init(site.Dir)

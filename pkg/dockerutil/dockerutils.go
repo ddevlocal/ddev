@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/drud/ddev/pkg/archive"
 	exec2 "github.com/drud/ddev/pkg/exec"
+	"github.com/drud/ddev/pkg/nodeps"
 	"github.com/drud/ddev/pkg/util"
 	"github.com/drud/ddev/pkg/version"
 	"io"
@@ -300,6 +301,7 @@ func ComposeWithStreams(composeFiles []string, stdin io.Reader, stdout io.Writer
 	proc.Stderr = stderr
 
 	err := proc.Run()
+	nodeps.ClearDockerEnv()
 	return err
 }
 
@@ -343,6 +345,7 @@ func ComposeCmd(composeFiles []string, action ...string) (string, string, error)
 	}
 
 	err = proc.Wait()
+	nodeps.ClearDockerEnv()
 	if err != nil {
 		return stdout.String(), stderr, fmt.Errorf("Failed to run docker-compose %v, err='%v', stdout='%s', stderr='%s'", arg, err, stdout.String(), stderr)
 	}

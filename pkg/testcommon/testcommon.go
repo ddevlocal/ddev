@@ -200,43 +200,6 @@ func Chdir(path string) func() {
 	}
 }
 
-// ClearDockerEnv unsets env vars set in platform DockerEnv() so that
-// they can be set by another test run.
-func ClearDockerEnv() {
-	envVars := []string{
-		"COMPOSE_PROJECT_NAME",
-		"COMPOSE_CONVERT_WINDOWS_PATHS",
-		"DDEV_SITENAME",
-		"DDEV_DBIMAGE",
-		"DDEV_WEBIMAGE",
-		"DDEV_APPROOT",
-		"DDEV_HOST_WEBSERVER_PORT",
-		"DDEV_HOST_HTTPS_PORT",
-		"DDEV_DOCROOT",
-		"DDEV_HOSTNAME",
-		"DDEV_PHP_VERSION",
-		"DDEV_WEBSERVER_TYPE",
-		"DDEV_PROJECT_TYPE",
-		"DDEV_ROUTER_HTTP_PORT",
-		"DDEV_ROUTER_HTTPS_PORT",
-		"DDEV_HOST_DB_PORT",
-		"DDEV_HOST_WEBSERVER_PORT",
-		"DDEV_PHPMYADMIN_PORT",
-		"DDEV_PHPMYADMIN_HTTPS_PORT",
-		"DDEV_MAILHOG_PORT",
-		"COLUMNS",
-		"LINES",
-		"DDEV_XDEBUG_ENABLED",
-		"IS_DDEV_PROJECT",
-	}
-	for _, env := range envVars {
-		err := os.Unsetenv(env)
-		if err != nil {
-			log.Printf("failed to unset %s: %v\n", env, err)
-		}
-	}
-}
-
 // ContainerCheck determines if a given container name exists and matches a given state
 func ContainerCheck(checkName string, checkState string) (bool, error) {
 	// ensure we have docker network

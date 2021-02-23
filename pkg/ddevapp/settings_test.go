@@ -95,7 +95,7 @@ func TestWriteDrushConfig(t *testing.T) {
 		switchDir := site.Chdir()
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s WriteDrushrc", site.Name))
 
-		testcommon.ClearDockerEnv()
+		nodeps.ClearDockerEnv()
 
 		err := app.Init(site.Dir)
 		assert.NoError(err)

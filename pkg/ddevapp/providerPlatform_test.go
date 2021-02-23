@@ -58,7 +58,7 @@ func TestPlatformPull(t *testing.T) {
 	err = globalconfig.WriteGlobalConfig(globalconfig.DdevGlobalConfig)
 	assert.NoError(err)
 
-	testcommon.ClearDockerEnv()
+	nodeps.ClearDockerEnv()
 
 	t.Cleanup(func() {
 		globalconfig.DdevGlobalConfig.WebEnvironment = webEnvSave
