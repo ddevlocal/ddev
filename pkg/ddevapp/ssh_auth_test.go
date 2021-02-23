@@ -6,7 +6,6 @@ import (
 	"github.com/drud/ddev/pkg/exec"
 	"github.com/drud/ddev/pkg/fileutil"
 	"github.com/drud/ddev/pkg/globalconfig"
-	"github.com/drud/ddev/pkg/nodeps"
 	"github.com/drud/ddev/pkg/testcommon"
 	"github.com/drud/ddev/pkg/util"
 	"github.com/drud/ddev/pkg/version"
@@ -39,7 +38,6 @@ func TestSSHAuth(t *testing.T) {
 	}
 
 	switchDir := site.Chdir()
-	nodeps.ClearDockerEnv()
 
 	err := app.Init(site.Dir)
 	if err != nil {
@@ -141,8 +139,6 @@ func TestSshAuthConfigOverride(t *testing.T) {
 	// Remove the ddev-ssh-agent, since the start code simply checks to see if it's
 	// running and doesn't restart it if it's running
 	_ = dockerutil.RemoveContainer("ddev-ssh-agent", 0)
-
-	nodeps.ClearDockerEnv()
 
 	app, err := ddevapp.NewApp(testDir, true)
 	assert.NoError(err)

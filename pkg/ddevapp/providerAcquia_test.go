@@ -91,8 +91,6 @@ func TestAcquiaPull(t *testing.T) {
 	err = app.WriteConfig()
 	assert.NoError(err)
 
-	nodeps.ClearDockerEnv()
-
 	// Run ddev once to create all the files in .ddev, including the example
 	_, err = exec.RunCommand("bash", []string{"-c", fmt.Sprintf("%s >/dev/null", DdevBin)})
 	require.NoError(t, err)

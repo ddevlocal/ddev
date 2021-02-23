@@ -176,7 +176,6 @@ func TestGetLocalHTTPResponse(t *testing.T) {
 	defer app.Stop(true, false)
 
 	for _, pair := range []PortPair{{"80", "443"}, {"8080", "8443"}} {
-		nodeps.ClearDockerEnv()
 		app.RouterHTTPPort = pair.HTTPPort
 		app.RouterHTTPSPort = pair.HTTPSPort
 		err = app.WriteConfig()

@@ -20,7 +20,6 @@ func TestSetInstrumentationAppTags(t *testing.T) {
 	site := TestSites[0]
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 
-	nodeps.ClearDockerEnv()
 	app := new(ddevapp.DdevApp)
 
 	err := app.Init(site.Dir)

@@ -2,7 +2,6 @@ package servicetest_test
 
 import (
 	"github.com/drud/ddev/pkg/globalconfig"
-	"github.com/drud/ddev/pkg/nodeps"
 	"github.com/stretchr/testify/require"
 	"os"
 	"runtime"
@@ -59,8 +58,6 @@ func TestServices(t *testing.T) {
 	app.Name = t.Name()
 	err = app.WriteConfig()
 	assert.NoError(err)
-
-	nodeps.ClearDockerEnv()
 
 	err = app.Start()
 	require.NoError(t, err)

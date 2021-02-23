@@ -35,8 +35,6 @@ func TestPortOverride(t *testing.T) {
 		defer testcommon.CleanupDir(testDir)
 		defer testcommon.Chdir(testDir)()
 
-		nodeps.ClearDockerEnv()
-
 		app, err := ddevapp.NewApp(testDir, true)
 		assert.NoError(err)
 		app.RouterHTTPPort = strconv.Itoa(80 + i)
@@ -159,8 +157,6 @@ func TestRouterConfigOverride(t *testing.T) {
 	testDir := testcommon.CreateTmpDir(t.Name())
 	_ = os.Chdir(testDir)
 	overrideYaml := filepath.Join(globalconfig.GetGlobalDdevDir(), "router-compose.override.yaml")
-
-	nodeps.ClearDockerEnv()
 
 	app, err := ddevapp.NewApp(testDir, true)
 	assert.NoError(err)

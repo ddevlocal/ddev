@@ -249,8 +249,6 @@ func TestMain(m *testing.M) {
 
 		switchDir := TestSites[i].Chdir()
 
-		nodeps.ClearDockerEnv()
-
 		app = &ddevapp.DdevApp{}
 		err = app.Init(TestSites[i].Dir)
 		if err != nil {
@@ -280,8 +278,6 @@ func TestMain(m *testing.M) {
 	}
 
 	for i, site := range TestSites {
-		nodeps.ClearDockerEnv()
-
 		app := &ddevapp.DdevApp{}
 
 		err := app.Init(site.Dir)
@@ -446,7 +442,6 @@ func TestDdevStartMultipleHostnames(t *testing.T) {
 
 	for _, site := range TestSites {
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s DdevStartMultipleHostnames", site.Name))
-		nodeps.ClearDockerEnv()
 
 		err := app.Init(site.Dir)
 		assert.NoError(err)
@@ -652,7 +647,6 @@ func TestDdevXdebugEnabled(t *testing.T) {
 	}
 	assert := asrt.New(t)
 	app := &ddevapp.DdevApp{}
-	nodeps.ClearDockerEnv()
 
 	site := TestSites[0]
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
@@ -768,7 +762,6 @@ func TestDdevMysqlWorks(t *testing.T) {
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
-	nodeps.ClearDockerEnv()
 	err = app.StartAndWait(0)
 	//nolint: errcheck
 	defer app.Stop(true, false)
@@ -834,7 +827,6 @@ func TestGetApps(t *testing.T) {
 
 	// Start the apps.
 	for _, site := range TestSites {
-		nodeps.ClearDockerEnv()
 		app := &ddevapp.DdevApp{}
 
 		err := app.Init(site.Dir)
@@ -859,7 +851,6 @@ func TestGetApps(t *testing.T) {
 
 	// Now shut down all sites as we expect them to be shut down.
 	for _, site := range TestSites {
-		nodeps.ClearDockerEnv()
 		app := &ddevapp.DdevApp{}
 
 		err := app.Init(site.Dir)
@@ -881,7 +872,6 @@ func TestDdevImportDB(t *testing.T) {
 	switchDir := site.Chdir()
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 	err = app.Start()
@@ -1070,7 +1060,6 @@ func TestDdevAllDatabases(t *testing.T) {
 	defer switchDir()
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -1188,7 +1177,6 @@ func TestDdevExportDB(t *testing.T) {
 
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s DdevExportDB", site.Name))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 	err = app.Start()
@@ -1267,7 +1255,6 @@ func TestDdevFullSiteSetup(t *testing.T) {
 		defer switchDir()
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s DdevFullSiteSetup", site.Name))
 		t.Logf("=== BEGIN TestDdevFullSiteSetup for %s\n", site.Name)
-		nodeps.ClearDockerEnv()
 		err := app.Init(site.Dir)
 		assert.NoError(err)
 
@@ -1361,7 +1348,6 @@ func TestDdevSnapshotCleanup(t *testing.T) {
 
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("TestDdevSnapshotCleanup"))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -1402,7 +1388,6 @@ func TestGetLatestSnapshot(t *testing.T) {
 
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("TestGetLatestSnapshot"))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -1468,8 +1453,6 @@ func TestDdevRestoreSnapshot(t *testing.T) {
 
 	switchDir := site.Chdir()
 	defer switchDir()
-
-	nodeps.ClearDockerEnv()
 
 	err = app.Init(site.Dir)
 	require.NoError(t, err)
@@ -1585,7 +1568,6 @@ func TestWriteableFilesDirectory(t *testing.T) {
 	switchDir := site.Chdir()
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s TestWritableFilesDirectory", site.Name))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -1704,7 +1686,6 @@ func TestDdevImportFilesDir(t *testing.T) {
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 		t.Logf("=== BEGIN TestDdevImportFilesDir for %s\n", site.Name)
 
-		nodeps.ClearDockerEnv()
 		err = app.Init(site.Dir)
 		assert.NoError(err)
 
@@ -1745,7 +1726,6 @@ func TestDdevImportFiles(t *testing.T) {
 		switchDir := site.Chdir()
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 
-		nodeps.ClearDockerEnv()
 		err := app.Init(site.Dir)
 		assert.NoError(err)
 		app.Hooks = map[string][]ddevapp.YAMLTask{"post-import-files": {{"exec-host": "touch hello-post-import-files-" + app.Name}}, "pre-import-files": {{"exec-host": "touch hello-pre-import-files-" + app.Name}}}
@@ -1792,7 +1772,6 @@ func TestDdevImportFilesCustomUploadDir(t *testing.T) {
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
 		t.Logf("=== BEGIN TestDdevImportFilesCustomUploadDir for %s\n", site.Name)
 
-		nodeps.ClearDockerEnv()
 		err := app.Init(site.Dir)
 		assert.NoError(err)
 
@@ -2033,7 +2012,6 @@ func TestProcessHooks(t *testing.T) {
 
 	runTime := util.TimeTrack(time.Now(), t.Name())
 
-	nodeps.ClearDockerEnv()
 	app, err := ddevapp.NewApp(site.Dir, true)
 	assert.NoError(err)
 	t.Cleanup(func() {
@@ -2114,7 +2092,6 @@ func TestDdevPause(t *testing.T) {
 	switchDir := site.Chdir()
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s DdevStop", site.Name))
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 	err = app.StartAndWait(0)
@@ -2156,7 +2133,6 @@ func TestDdevStopMissingDirectory(t *testing.T) {
 	assert := asrt.New(t)
 
 	site := TestSites[0]
-	nodeps.ClearDockerEnv()
 	app := &ddevapp.DdevApp{}
 	err := app.Init(site.Dir)
 	assert.NoError(err)
@@ -2201,7 +2177,6 @@ func TestDdevDescribe(t *testing.T) {
 	site := TestSites[0]
 	switchDir := site.Chdir()
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -2298,7 +2273,6 @@ func TestRouterPortsCheck(t *testing.T) {
 	for _, site := range TestSites {
 		switchDir := site.Chdir()
 
-		nodeps.ClearDockerEnv()
 		err := app.Init(site.Dir)
 		assert.NoError(err)
 
@@ -2312,7 +2286,6 @@ func TestRouterPortsCheck(t *testing.T) {
 
 	// Now start one site, it's hard to get router to behave without one site.
 	site := TestSites[0]
-	nodeps.ClearDockerEnv()
 
 	err := app.Init(site.Dir)
 	assert.NoError(err)
@@ -2376,7 +2349,6 @@ func TestCleanupWithoutCompose(t *testing.T) {
 	revertDir := site.Chdir()
 	app := &ddevapp.DdevApp{}
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	assert.NoError(err)
 
@@ -2439,7 +2411,6 @@ func TestGetAppsEmpty(t *testing.T) {
 
 		switchDir := site.Chdir()
 
-		nodeps.ClearDockerEnv()
 		err := app.Init(site.Dir)
 		assert.NoError(err)
 
@@ -2474,7 +2445,6 @@ func TestListWithoutDir(t *testing.T) {
 	}
 	// Set up tests and give ourselves a working directory.
 	assert := asrt.New(t)
-	nodeps.ClearDockerEnv()
 	packageDir, _ := os.Getwd()
 
 	// startCount is the count of apps at the start of this adventure
@@ -2605,7 +2575,6 @@ func TestAppdirAlreadyInUse(t *testing.T) {
 func TestHttpsRedirection(t *testing.T) {
 	// Set up tests and give ourselves a working directory.
 	assert := asrt.New(t)
-	nodeps.ClearDockerEnv()
 	packageDir, _ := os.Getwd()
 
 	testDir := testcommon.CreateTmpDir(t.Name())
@@ -2777,7 +2746,6 @@ func TestGetAllURLs(t *testing.T) {
 	site := TestSites[0]
 	runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s GetAllURLs", site.Name))
 
-	nodeps.ClearDockerEnv()
 	app := new(ddevapp.DdevApp)
 
 	err := app.Init(site.Dir)
@@ -2854,8 +2822,6 @@ func TestWebserverType(t *testing.T) {
 			err = app.WriteConfig()
 			assert.NoError(err)
 
-			nodeps.ClearDockerEnv()
-
 			startErr := app.StartAndWait(30)
 			//nolint: errcheck
 			defer app.Stop(true, false)
@@ -2908,7 +2874,6 @@ func TestInternalAndExternalAccessToURL(t *testing.T) {
 	app.AdditionalFQDNs = []string{"junker99.example.com"}
 
 	for _, pair := range []testcommon.PortPair{{HTTPPort: "80", HTTPSPort: "443"}, {HTTPPort: "8080", HTTPSPort: "8443"}} {
-		nodeps.ClearDockerEnv()
 		app.RouterHTTPPort = pair.HTTPPort
 		app.RouterHTTPSPort = pair.HTTPSPort
 		err = app.WriteConfig()

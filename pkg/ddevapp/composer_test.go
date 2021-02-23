@@ -4,7 +4,6 @@ import (
 	"github.com/drud/ddev/pkg/ddevapp"
 	"github.com/drud/ddev/pkg/fileutil"
 	"github.com/drud/ddev/pkg/globalconfig"
-	"github.com/drud/ddev/pkg/nodeps"
 	"github.com/drud/ddev/pkg/testcommon"
 	"github.com/stretchr/testify/require"
 	"os"
@@ -38,7 +37,6 @@ func TestComposer(t *testing.T) {
 	defer os.Chdir(testDir)
 	_ = os.Chdir(site.Dir)
 
-	nodeps.ClearDockerEnv()
 	err := app.Init(site.Dir)
 	app.ComposerVersion = "2"
 	assert.NoError(err)
