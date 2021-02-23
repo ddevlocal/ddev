@@ -249,6 +249,8 @@ func TestMain(m *testing.M) {
 
 		switchDir := TestSites[i].Chdir()
 
+		nodeps.ClearDockerEnv()
+
 		app = &ddevapp.DdevApp{}
 		err = app.Init(TestSites[i].Dir)
 		if err != nil {
@@ -467,7 +469,7 @@ func TestDdevStartMultipleHostnames(t *testing.T) {
 			assert.NoError(err)
 			out, err := exec.RunCommand("docker", []string{"logs", container.Names[0]})
 			assert.NoError(err)
-			t.Logf("DB Logs after app.Start: \n%s\n=== END DB LOGS ===", out)
+			t.Logf("DB Logs after app.Start: \n%s\n== END DB LOGS ==", out)
 		}
 
 		// ensure .ddev/docker-compose*.yaml exists inside .ddev site folder
@@ -1254,7 +1256,7 @@ func TestDdevFullSiteSetup(t *testing.T) {
 		switchDir := site.Chdir()
 		defer switchDir()
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s DdevFullSiteSetup", site.Name))
-		t.Logf("=== BEGIN TestDdevFullSiteSetup for %s\n", site.Name)
+		t.Logf("== BEGIN TestDdevFullSiteSetup for %s\n", site.Name)
 		err := app.Init(site.Dir)
 		assert.NoError(err)
 
@@ -1300,7 +1302,7 @@ func TestDdevFullSiteSetup(t *testing.T) {
 		if startErr != nil {
 			appLogs, getLogsErr := ddevapp.GetErrLogsFromApp(app, startErr)
 			assert.NoError(getLogsErr)
-			t.Fatalf("app.StartAndWait() failure err=%v; logs:\n=====\n%s\n=====\n", startErr, appLogs)
+			t.Fatalf("app.StartAndWait() failure err=%v; logs:\n==\n%s\n=====\n", startErr, appLogs)
 		}
 
 		// Test static content.
@@ -1678,13 +1680,13 @@ func TestDdevImportFilesDir(t *testing.T) {
 
 	for _, site := range TestSites {
 		if site.FilesTarballURL == "" && site.FilesZipballURL == "" {
-			t.Logf("=== SKIP TestDdevImportFilesDir for %s (FilesTarballURL and FilesZipballURL are not provided)\n", site.Name)
+			t.Logf("== SKIP TestDdevImportFilesDir for %s (FilesTarballURL and FilesZipballURL are not provided)\n", site.Name)
 			continue
 		}
 
 		switchDir := site.Chdir()
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
-		t.Logf("=== BEGIN TestDdevImportFilesDir for %s\n", site.Name)
+		t.Logf("== BEGIN TestDdevImportFilesDir for %s\n", site.Name)
 
 		err = app.Init(site.Dir)
 		assert.NoError(err)
@@ -1719,7 +1721,7 @@ func TestDdevImportFiles(t *testing.T) {
 
 	for _, site := range TestSites {
 		if site.FilesTarballURL == "" && site.FilesZipballURL == "" && site.FullSiteTarballURL == "" {
-			t.Logf("=== SKIP TestDdevImportFiles for %s (FilesTarballURL and FilesZipballURL are not provided)\n", site.Name)
+			t.Logf("== SKIP TestDdevImportFiles for %s (FilesTarballURL and FilesZipballURL are not provided)\n", site.Name)
 			continue
 		}
 
@@ -1770,7 +1772,7 @@ func TestDdevImportFilesCustomUploadDir(t *testing.T) {
 	for _, site := range TestSites {
 		switchDir := site.Chdir()
 		runTime := util.TimeTrack(time.Now(), fmt.Sprintf("%s %s", site.Name, t.Name()))
-		t.Logf("=== BEGIN TestDdevImportFilesCustomUploadDir for %s\n", site.Name)
+		t.Logf("== BEGIN TestDdevImportFilesCustomUploadDir for %s\n", site.Name)
 
 		err := app.Init(site.Dir)
 		assert.NoError(err)
@@ -2196,7 +2198,7 @@ func TestDdevDescribe(t *testing.T) {
 		healthcheck, inspectErr := exec.RunCommandPipe("sh", []string{"-c", fmt.Sprintf("docker inspect ddev-%s-web|jq -r '.[0].State.Health.Log[-1]'", app.Name)})
 		assert.NoError(inspectErr)
 
-		t.Fatalf("app.StartAndWait(%s) failed: %v, \nweb container healthcheck='%s', \n=== web container logs=\n%s\n=== END web container logs ===", site.Name, err, healthcheck, out)
+		t.Fatalf("app.StartAndWait(%s) failed: %v, \nweb container healthcheck='%s', \n== web container logs=\n%s\n== END web container logs ==", site.Name, err, healthcheck, out)
 	}
 
 	desc, err := app.Describe(false)
@@ -2633,7 +2635,7 @@ func TestHttpsRedirection(t *testing.T) {
 			if startErr != nil {
 				appLogs, getLogsErr := ddevapp.GetErrLogsFromApp(app, startErr)
 				assert.NoError(getLogsErr)
-				t.Fatalf("app.StartAndWait failure; err=%v \n===== container logs ===\n%s\n", startErr, appLogs)
+				t.Fatalf("app.StartAndWait failure; err=%v \n===== container logs ==\n%s\n", startErr, appLogs)
 			}
 			// Test for directory redirects under https and http
 			for _, parts := range expectations {

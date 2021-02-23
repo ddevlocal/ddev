@@ -1108,6 +1108,7 @@ func (app *DdevApp) Exec(opts *ExecOpts) (string, string, error) {
 		stderr = opts.Stderr
 	}
 
+	app.DockerEnv()
 	var stdoutResult, stderrResult string
 	if opts.NoCapture || opts.Tty {
 		err = dockerutil.ComposeWithStreams(files, os.Stdin, stdout, stderr, exec...)
@@ -1160,7 +1161,7 @@ func (app *DdevApp) ExecWithTty(opts *ExecOpts) error {
 	if err != nil {
 		return err
 	}
-
+	app.DockerEnv()
 	return dockerutil.ComposeWithStreams(files, os.Stdin, os.Stdout, os.Stderr, exec...)
 }
 
