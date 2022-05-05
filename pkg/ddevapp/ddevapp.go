@@ -1752,6 +1752,7 @@ func (app *DdevApp) DockerEnv() {
 		"IS_DDEV_PROJECT":            "true",
 		"IS_GITPOD":                  isGitpod,
 		"IS_WSL2":                    isWSL2,
+		"RANDOM":                     util.RandString(10),
 	}
 
 	// Set the DDEV_DB_CONTAINER_COMMAND command to empty to prevent docker-compose from complaining normally.

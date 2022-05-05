@@ -865,6 +865,8 @@ FROM $BASE_IMAGE
 ARG username
 ARG uid
 ARG gid
+# Cache prevention solution from https://stackoverflow.com/a/49772666/215713
+ARG CACHEBUST=1
 RUN (groupadd --gid $gid "$username" || groupadd "$username" || true) && (useradd  -l -m -s "/bin/bash" --gid "$username" --comment '' --uid $uid "$username" || useradd  -l -m -s "/bin/bash" --gid "$username" --comment '' "$username" || useradd  -l -m -s "/bin/bash" --gid "$gid" --comment '' "$username")
 `
 	if extraPackages != nil {
@@ -891,7 +893,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg:
 
 		// Composer v2 is default
 		// Try composer self-update twice because of troubles with composer downloads
-		// breaking testing.
+		// breaking testing. Use || true because this should work even with no internet
 		contents = contents + fmt.Sprintf(`
 RUN export XDEBUG_MODE=off && ( composer self-update %s || composer self-update %s || true )
 `, composerSelfUpdateArg, composerSelfUpdateArg)

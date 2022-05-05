@@ -11,6 +11,7 @@ services:
         username: '{{ .Username }}'
         uid: '{{ .UID }}'
         gid: {{ if ne .DBType "postgres" }} {{ .GID }} {{ else }} "999" {{ end }}
+        CACHEBUST: $RANDOM
     image: ${DDEV_DBIMAGE}-${DDEV_SITENAME}-built
     stop_grace_period: 60s
     working_dir: "{{ .DBWorkingDir }}"
@@ -85,6 +86,7 @@ services:
         username: '{{ .Username }}'
         uid: '{{ .UID }}'
         gid: '{{ .GID }}'
+        CACHEBUST: $RANDOM
     image: ${DDEV_WEBIMAGE}-${DDEV_SITENAME}-built
     networks: ["default", "ddev_default"]
     cap_add:
